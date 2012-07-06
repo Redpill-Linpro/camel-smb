@@ -10,3 +10,9 @@ Since we could not find a easy to integrate CIFS server implemented in Java the 
 currently requires that a local CIFS server (Samba or MS Windows share).
 Also copy camelsmb.prp.template to your home directory, rename it to camelsmb.prp" and edit 
 to include correct details.
+
+Contributor
+-----------
+Martin Samuelsson [martin __AT__ martsam __DOT__ se]
+Pontus Ullgren [ullgren gmail com]
+
