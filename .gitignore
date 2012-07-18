@@ -1,4 +1,11 @@
 *.class
+target/*
+
+# Eclipse project files #
+.classpath
+.project
+.settings/
+
 
 # Package Files #
 *.jar

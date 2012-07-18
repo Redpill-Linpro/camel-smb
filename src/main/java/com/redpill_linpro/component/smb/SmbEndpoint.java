@@ -1,7 +1,5 @@
 package com.redpill_linpro.component.smb;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.Map;
 
 import jcifs.smb.SmbFile;
@@ -18,8 +16,6 @@ public class SmbEndpoint extends GenericFileEndpoint<SmbFile> {
 	protected SmbClient smbClient;
 	protected Map<String, Object> props;
 	
-	private String cron;
-
 	public SmbEndpoint(String uri, SmbComponent smbComponent, SmbConfiguration configuration) {
 		super(uri, smbComponent);
 		this.configuration = configuration;
@@ -75,22 +71,6 @@ public class SmbEndpoint extends GenericFileEndpoint<SmbFile> {
 	@Override
 	public boolean isAbsolute(String name) {
 		return true;
-	}
-
-	public void setCron(String cron) {
-		if (log.isDebugEnabled())
-			log.debug("setCron() cron[" + cron + "]");
-		String newCron = "";
-		try {
-			newCron = URLDecoder.decode(cron, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			log.warn("cron expression [" + cron + "] not valid!");
-		}
-		this.cron = newCron;
-	}
-
-	public String getCron() {
-		return cron;
 	}
 	
 	@Override

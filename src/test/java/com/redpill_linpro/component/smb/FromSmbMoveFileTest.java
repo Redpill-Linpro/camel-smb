@@ -11,7 +11,7 @@ import org.junit.Test;
 /**
  * Unit test to test both consumer.moveNamePrefix and consumer.moveNamePostfix options.
  */
-public class FromFtpMoveFileTest extends BaseSmbTestSupport {
+public class FromSmbMoveFileTest extends BaseSmbTestSupport {
 	private String getSmbUrl() {
 		return "smb://"+getDomain()+";"+getUsername()+"@localhost/"+getShare()+"/camel/"
 			+getClass().getSimpleName()+"?password="+getPassword()
