@@ -15,9 +15,11 @@ public class SmbConfiguration extends GenericFileConfiguration {
 	private String password = null;
 	private String host = null;
 	private String path = null;
+	private SmbApiFactory smbApiFactory = null;
 
-	public SmbConfiguration(URI uri) {
+	public SmbConfiguration(URI uri, SmbApiFactory smbApiFactory) {
 		configure(uri);
+		this.smbApiFactory = smbApiFactory;
 	}
 
 	@Override
@@ -106,6 +108,14 @@ public class SmbConfiguration extends GenericFileConfiguration {
 		//this is a bit dirty
 
 		return s;
+	}
+	
+	public void setSmbApiFactory(SmbApiFactory smbApiFactory) {
+		this.smbApiFactory = smbApiFactory;
+	}
+	
+	public SmbApiFactory getSmbApiFactory() {
+		return smbApiFactory;
 	}
 
 }

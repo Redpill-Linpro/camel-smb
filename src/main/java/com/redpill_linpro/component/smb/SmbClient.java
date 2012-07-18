@@ -22,8 +22,19 @@ import org.slf4j.LoggerFactory;
 public class SmbClient {
 
 	private NtlmPasswordAuthentication authentication;
+	private SmbApiFactory smbApiFactory = new JcifsSmbApiFactory();
+	
 
 	protected final transient Logger log = LoggerFactory.getLogger(getClass());
+	
+	/**
+	 * Allows for overriding the default {@link SmbApiFactory} implementation.
+	 * 
+	 * @param smbFileFactory a {@link SmbApiFactory} to use instead of the default implementation.
+	 */
+	public void setSmbApiFactory(SmbApiFactory smbApiFactory) {
+		this.smbApiFactory = smbApiFactory;
+	}
 
 	/** 
 	 * Creates the internal NtlmPasswordAuthentication, that is used for authentication, from the provided credentials. 
@@ -51,8 +62,7 @@ public class SmbClient {
 		if (log.isDebugEnabled()) {
 			log.debug("retrieveFile() path[" + url + "]");
 	    }
-		SmbFile smbFile;
-		smbFile = new SmbFile(url, authentication);
+		SmbFile smbFile = smbApiFactory.createSmbFile(url, authentication);
 		IOHelper.copyAndCloseInput(smbFile.getInputStream(), out);
 		return true;
 	}
@@ -63,7 +73,7 @@ public class SmbClient {
 		}
 		SmbFile smbFile;
 		try {
-			smbFile = new SmbFile(url, authentication);
+			smbFile = smbApiFactory.createSmbFile(url, authentication);
 			if (!smbFile.exists()) {
 				smbFile.mkdirs();
 			}
@@ -80,15 +90,15 @@ public class SmbClient {
 		if (log.isDebugEnabled()) {
 			log.debug("getInputStream() path[" + url + "]");
 		}
-		SmbFile smbFile = new SmbFile(url, authentication);
+		SmbFile smbFile = smbApiFactory.createSmbFile(url, authentication);
 		return smbFile.getInputStream();
 	}
 
 	public boolean storeFile(String url, InputStream inputStream) throws IOException {
 		if (log.isDebugEnabled())
 			log.debug("storeFile path[" + url + "]");
-		SmbFile smbFile = new SmbFile(url, authentication);
-		SmbFileOutputStream smbout = new SmbFileOutputStream(smbFile, false);
+		SmbFile smbFile = smbApiFactory.createSmbFile(url, authentication);
+		SmbFileOutputStream smbout = smbApiFactory.createSmbFileOutputStream(smbFile, false);
 		byte[] buf = new byte[512 * 1024];
 		int numRead;
 		while ( (numRead = inputStream.read(buf)) >= 0)
@@ -99,7 +109,7 @@ public class SmbClient {
 
 	public List<SmbFile> listFiles(String url) throws SmbException, MalformedURLException  {
 		List<SmbFile> fileList = new ArrayList<SmbFile>();
-		SmbFile dir = new SmbFile(url, authentication);
+		SmbFile dir = smbApiFactory.createSmbFile(url, authentication);
 		for (SmbFile f : dir.listFiles()){
 			fileList.add(f);
 		}
@@ -107,12 +117,12 @@ public class SmbClient {
 	}	
 
 	public boolean isExist(String url) throws Exception {
-		SmbFile sFile = new SmbFile(url, authentication);
+		SmbFile sFile = smbApiFactory.createSmbFile(url, authentication);
 		return sFile.exists();
 	}
 
 	public boolean delete(String url) throws Exception {
-		SmbFile sFile = new SmbFile(url, authentication);
+		SmbFile sFile = smbApiFactory.createSmbFile(url, authentication);
 		try {
 			sFile.delete();
 		} catch(SmbException e) {
@@ -122,8 +132,8 @@ public class SmbClient {
 	}
 
 	public boolean rename(String fromUrl, String toUrl) throws Exception {
-		SmbFile sFile = new SmbFile(fromUrl, authentication);
-		SmbFile renamedFile = new SmbFile(toUrl, authentication);
+		SmbFile sFile = smbApiFactory.createSmbFile(fromUrl, authentication);
+		SmbFile renamedFile = smbApiFactory.createSmbFile(toUrl, authentication);
 		try {
 			sFile.renameTo(renamedFile);
 		} catch (SmbException e) {

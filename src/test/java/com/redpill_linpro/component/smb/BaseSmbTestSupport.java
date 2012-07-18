@@ -1,45 +1,49 @@
 package com.redpill_linpro.component.smb;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
-
-import org.apache.camel.test.CamelTestSupport;
-import org.junit.Assert;
+import org.apache.camel.CamelContext;
+import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
 
-public class BaseSmbTestSupport extends CamelTestSupport {
+import com.redpill_linpro.component.smb.test.StubFileSmbApiFactory;
 
-	private static Properties properties;
+public abstract class BaseSmbTestSupport extends CamelTestSupport {
+
+	protected StubFileSmbApiFactory smbApiFactory;
+	
+	protected abstract void setUpFileSystem() throws Exception;
 	
 	@Before
 	public void setUp() throws Exception {
-		properties = new Properties();
-		File configFile = new File(System.getProperty("user.home")+File.separator+"camelsmb.prp");
-		if ( !configFile.exists() ) {
-			Assert.fail("Copy src/test/resources/camelsmb.prp.template to " +System.getProperty("user.home")+File.separator+"camelsmb.prp and edit for correct details.");
-		}
-		properties.load(new FileInputStream(configFile));
+		smbApiFactory = new StubFileSmbApiFactory();
+		setUpFileSystem();
 		super.setUp();
 	}
 	
+	@Override
+	protected CamelContext createCamelContext() throws Exception {
+		CamelContext context = super.createCamelContext();
+		SmbComponent component = (SmbComponent) context.getComponent("smb");
+		component.setSmbApiFactoryClass(smbApiFactory);
+		return context;
+	}
+	
 	public String getUsername() {
-		return properties.getProperty("username");
+		return "joed";
 	}
 	
 	public String getDomain() {
-		return properties.getProperty("domain");
+		return "WORKGROUP";
 	}
 	
 	public String getPassword() {
-		return properties.getProperty("password");
+		return "secret123";
 	}
 	
 	public String getShare() {
-		return properties.getProperty("share");
+		return "share";
 	}
 	
 	public String getLocalSharePath() {
-		return properties.getProperty("localpath");
+		return "src/test/data";
 	}
 }

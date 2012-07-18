@@ -10,14 +10,21 @@ import org.apache.camel.component.file.GenericFileComponent;
 import org.apache.camel.component.file.GenericFileEndpoint;
 
 public class SmbComponent extends GenericFileComponent<SmbFile> {
+	
+	private SmbApiFactory smbApiFactory;
 
     public SmbComponent() {
 
     }
-
+    
     public SmbComponent(CamelContext context) {
         super(context);
     }
+    
+    
+    public void setSmbApiFactoryClass(SmbApiFactory smbApiFactory) {
+		this.smbApiFactory = smbApiFactory;
+	}
 
     @Override
     protected SmbEndpoint buildFileEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
@@ -25,7 +32,7 @@ public class SmbComponent extends GenericFileComponent<SmbFile> {
             log.debug("buildFileEndpoint() uri[" + uri + "] remaining[" + remaining + "] parameters[" + parameters + "]");
 
         uri = fixSpaces(uri);
-        SmbConfiguration config = new SmbConfiguration(new URI(uri));
+        SmbConfiguration config = new SmbConfiguration(new URI(uri), smbApiFactory);
         SmbEndpoint endpoint = new SmbEndpoint(uri, this, config);
         return endpoint;
     }

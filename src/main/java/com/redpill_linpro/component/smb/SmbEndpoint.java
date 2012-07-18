@@ -1,7 +1,5 @@
 package com.redpill_linpro.component.smb;
 
-import java.util.Map;
-
 import jcifs.smb.SmbFile;
 
 import org.apache.camel.Exchange;
@@ -13,9 +11,6 @@ import org.apache.camel.impl.DefaultExchange;
 
 public class SmbEndpoint extends GenericFileEndpoint<SmbFile> {
 
-	protected SmbClient smbClient;
-	protected Map<String, Object> props;
-	
 	public SmbEndpoint(String uri, SmbComponent smbComponent, SmbConfiguration configuration) {
 		super(uri, smbComponent);
 		this.configuration = configuration;
@@ -53,6 +48,9 @@ public class SmbEndpoint extends GenericFileEndpoint<SmbFile> {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public SmbOperations<SmbFile> createSmbOperations(){
 		SmbClient client = new SmbClient();
+		if ( ((SmbConfiguration)this.configuration).getSmbApiFactory() != null ) {
+			client.setSmbApiFactory(((SmbConfiguration)this.configuration).getSmbApiFactory());
+		}
 		SmbOperations operations = new SmbOperations(client);
 		operations.setEndpoint(this);
 		return operations;

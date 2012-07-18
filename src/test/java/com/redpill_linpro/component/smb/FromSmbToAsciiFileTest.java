@@ -1,12 +1,21 @@
 package com.redpill_linpro.component.smb;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import java.io.File;
 
-import org.apache.camel.Endpoint;
+import jcifs.smb.SmbFile;
+import jcifs.smb.SmbFileInputStream;
+
 import org.apache.camel.Exchange;
-import org.apache.camel.Producer;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,36 +23,70 @@ import org.junit.Test;
  * Unit test to verify that we can pool an ASCII file from the SMB Server and store it on a local file path
  */
 public class FromSmbToAsciiFileTest extends BaseSmbTestSupport {
-
-	private String getSmbUrl() {
-		return "smb://"+getDomain()+";"+getUsername()+"@localhost/"+getShare()+"/camel/"+getClass().getSimpleName()+"?password="+getPassword()+"&fileExist=Override";
+	
+	SmbFile rootDir;
+	SmbFile sourceFile;
+	SmbFileInputStream mockInputStream;
+	
+	
+	protected String getSmbBaseUrl() {
+		return "smb://localhost/"+getShare()+"/camel/"+getClass().getSimpleName()+"/";
     }
 	
-	@Override
+	private String getSmbUrl() {
+		return "smb://"+getDomain()+";"+getUsername()+"@localhost/"
+			+getShare()+"/camel/"+getClass().getSimpleName()
+			+"?password="+getPassword()+"&fileExist=Override";
+    }
+
 	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		// prepares the FTP Server by creating a file on the server that we want to unit
-        // test that we can pool and store as a local file
-        Endpoint endpoint = context.getEndpoint(getSmbUrl());
-        Exchange exchange = endpoint.createExchange();
-        exchange.getIn().setBody("Hello World from SMBServer");
-        exchange.getIn().setHeader(Exchange.FILE_NAME, "hello.txt");
-        Producer producer = endpoint.createProducer();
-        producer.start();
-        producer.process(exchange);
-        producer.stop();
-	}
+	public void setUpFileSystem() throws Exception {
+		sourceFile = createMock(SmbFile.class);
+		rootDir = createMock(SmbFile.class);
+		mockInputStream = createMock(SmbFileInputStream.class);
+		long startTime = System.currentTimeMillis();
+		
+		expect(rootDir.listFiles()).andReturn(new SmbFile[]{sourceFile}).anyTimes();
+		expect(rootDir.isDirectory()).andReturn(true).anyTimes();
+		
+		
+		expect(sourceFile.isDirectory()).andReturn(false).anyTimes();
+		expect(sourceFile.getName()).andReturn("hello.txt").anyTimes();
+		expect(sourceFile.getContentLength()).andReturn(26).anyTimes();
+		expect(sourceFile.getLastModified()).andReturn(startTime).anyTimes();
+		expect(sourceFile.getInputStream()).andReturn(mockInputStream).anyTimes();
+	
+		
+		expect(mockInputStream.available()).andReturn(26);
+		expect(mockInputStream.read((byte[]) anyObject())).andAnswer(new IAnswer<Integer>() {
+			public Integer answer() throws Throwable {
+				byte[] b = (byte[]) EasyMock.getCurrentArguments()[0];
+				byte[] msg = "Hello World from SMBServer".getBytes();
+				System.arraycopy(msg, 0, b, 0, msg.length);
+				return msg.length;
+			}
+		});
+		expect(mockInputStream.read((byte[]) anyObject())).andReturn(-1);
+		mockInputStream.close();
+		
+		smbApiFactory.putSmbFiles(getSmbBaseUrl(), rootDir);
+		smbApiFactory.putSmbFiles(getSmbBaseUrl()+"hello.txt", sourceFile);
+	};
+	
 	
 	@Test
     public void testFromSmbToFile() throws Exception {
-        MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
+		replay(rootDir, sourceFile, mockInputStream);
+		
+		MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.expectedMinimumMessageCount(1);
         resultEndpoint.expectedBodiesReceived("Hello World from SMBServer");
         
         resultEndpoint.assertIsSatisfied();
 
-        // assert the file
+        verify(rootDir, sourceFile, mockInputStream);
+        
+		// assert the file
         File file = new File("target/smbtest/deleteme.txt");
         assertTrue("The ASCII file should exists", file.exists());
         assertTrue("File size wrong", file.length() > 10);

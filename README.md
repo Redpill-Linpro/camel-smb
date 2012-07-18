@@ -6,9 +6,11 @@ It was originally developed by Redpill Linpro AB and Helsingborgs stad as part o
 
 This component is licensed under the LGPL (http://www.gnu.org/licenses/lgpl-2.1.txt)
 
-Since we could not find a easy to integrate CIFS server implemented in Java the unit testing 
-currently requires that a local CIFS server (Samba or MS Windows share).
-Also copy camelsmb.prp.template to your home directory, rename it to camelsmb.prp" and edit 
+The unit testing is done by mocking out the jcifs library to be able to run automaticly.
+
+There are some manuell integration tests (src/integrationtest) that are meant to be run with a a 
+local CIFS server (Samba or MS Windows share).
+To run these copy camelsmb.prp.template to your home directory, rename it to camelsmb.prp" and edit 
 to include correct details.
 
 Contributor
