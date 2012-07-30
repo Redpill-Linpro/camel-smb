@@ -13,8 +13,11 @@ local CIFS server (Samba or MS Windows share).
 To run these copy camelsmb.prp.template to your home directory, rename it to camelsmb.prp" and edit 
 to include correct details.
 
+Travis CI : [![Build Status](https://secure.travis-ci.org/Redpill-Linpro/camel-smb.png)](http://travis-ci.org/Redpill-Linpro/camel-smb)
+
+
 Contributor
 -----------
-Martin Samuelsson [martin __AT__ martsam __DOT__ se]
+Martin Samuelsson [martin __AT__ martsam __DOT__ se]  
 Pontus Ullgren [ullgren gmail com]
 
