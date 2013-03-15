@@ -11,6 +11,7 @@ import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileConsumer;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
+import org.apache.camel.util.FileUtil;
 
 public class SmbConsumer extends GenericFileConsumer<SmbFile>{
 
@@ -59,7 +60,7 @@ public class SmbConsumer extends GenericFileConsumer<SmbFile>{
 			else {
 				try {
 					GenericFile<SmbFile> genericFile = asGenericFile(fileName, smbFile);
-					if (isValidFile(genericFile, false)) {
+					if (isValidFile(genericFile, false, smbFiles)) {
 						if (isInProgress(genericFile)) {
 							log.info("skipping as we are already in progress with this file");
 						}
@@ -94,5 +95,19 @@ public class SmbConsumer extends GenericFileConsumer<SmbFile>{
 		}
 		return answer;
 	}
+
+	@Override
+    protected boolean isMatched(GenericFile<SmbFile> file, String doneFileName, List<SmbFile> files) {
+        String onlyName = FileUtil.stripPath(doneFileName);
+
+        for (SmbFile f : files) {
+            if (f.getName().equals(onlyName)) {
+                return true;
+            }
+        }
+
+        log.trace("Done file: {} does not exist", doneFileName);
+        return false;
+    }
 
 }
