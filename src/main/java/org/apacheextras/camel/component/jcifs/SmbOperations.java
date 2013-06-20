@@ -261,4 +261,9 @@ public class SmbOperations<SmbFile> implements GenericFileOperations<SmbFile> {
 		}
 		return path.replace('\\', '/');
 	}
+
+	public void releaseRetreivedFileResources(Exchange exchange)
+			throws GenericFileOperationFailedException {
+		// Right now do nothing		
+	}
 }
