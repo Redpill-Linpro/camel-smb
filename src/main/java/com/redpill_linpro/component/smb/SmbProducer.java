@@ -89,31 +89,6 @@ public class SmbProducer extends GenericFileProducer<SmbFile> implements Service
 					log.debug("Writing using tempNameFile: " + tempTarget);
 				}
 
-				// cater for file exists option on the real target as
-				// the file operations code will work on the temp file
-
-				// if an existing file already exists what should we do?
-				if (operations.existsFile(target)) {
-					if (endpoint.getFileExist() == GenericFileExist.Ignore) {
-						// ignore but indicate that the file was written
-						if (log.isDebugEnabled()) {
-							log.debug("An existing file already exists: " + target + ". Ignore and do not override it.");
-						}
-						return;
-					} else if (endpoint.getFileExist() == GenericFileExist.Fail) {
-						throw new GenericFileOperationFailedException("File already exist: " + target + ". Cannot write new file.");
-					} else if (endpoint.isEagerDeleteTargetFile() && endpoint.getFileExist() == GenericFileExist.Override) {
-						// we override the target so we do this by deleting it so the temp file can be renamed later
-						// with success as the existing target file have been deleted
-						if (log.isDebugEnabled()) {
-							log.debug("Eagerly deleting existing file: " + target);
-						}
-						if (!operations.deleteFile(target)) {
-							throw new GenericFileOperationFailedException("Cannot delete file: " + target);
-						}
-					}
-				}
-
 				// delete any pre existing temp file
 				if (operations.existsFile(tempTarget)) {
 					if (log.isDebugEnabled()) {
@@ -237,6 +212,7 @@ public class SmbProducer extends GenericFileProducer<SmbFile> implements Service
 
 	@Override
 	public void writeFile(Exchange exchange, String fileName) throws GenericFileOperationFailedException {
+
 		if (log.isDebugEnabled())
 			log.debug("writeFile() fileName[" + fileName + "]");
 		// build directory if auto create is enabled
