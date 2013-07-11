@@ -18,13 +18,13 @@
     <groupId>com.redpill_linpro.component.smb</groupId>
     <artifactId>camel-smb</artifactId>
     <packaging>jar</packaging>
-    <version>2.9.6-1.0</version>
+    <version>2.11.0-1.0</version>
 
     <name>A Camel SMB Component</name>
     <url>https://github.com/Redpill-Linpro/camel-smb</url>
 
     <properties>
-        <camel-version>2.9.6</camel-version>
+        <camel-version>2.11.0</camel-version>
     	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

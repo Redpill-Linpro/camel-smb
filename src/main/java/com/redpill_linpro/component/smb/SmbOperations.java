@@ -77,9 +77,14 @@ public class SmbOperations<SmbFile> implements GenericFileOperations<SmbFile> {
 	public boolean retrieveFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
 		if (ObjectHelper.isNotEmpty(endpoint.getLocalWorkDirectory())) {
 			return retrieveFileToFileInLocalWorkDirectory(name, exchange);
-		} 
-		return retrieveFileToStreamInBody(name, exchange);
+		} else {
+			return retrieveFileToStreamInBody(name, exchange);
+		}
 	}
+
+	public void releaseRetreivedFileResources(Exchange exchange) throws GenericFileOperationFailedException {
+          // Since this component does not support streamDownload we do not need to do anything.
+        }
 
 	@SuppressWarnings("unchecked")
 	private boolean retrieveFileToFileInLocalWorkDirectory(String name, Exchange exchange) throws GenericFileOperationFailedException {
