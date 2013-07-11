@@ -94,11 +94,11 @@ public class SmbClient {
 		return smbFile.getInputStream();
 	}
 
-	public boolean storeFile(String url, InputStream inputStream) throws IOException {
+	public boolean storeFile(String url, InputStream inputStream, boolean append) throws IOException {
 		if (log.isDebugEnabled())
 			log.debug("storeFile path[" + url + "]");
 		SmbFile smbFile = smbApiFactory.createSmbFile(url, authentication);
-		SmbFileOutputStream smbout = smbApiFactory.createSmbFileOutputStream(smbFile, false);
+		SmbFileOutputStream smbout = smbApiFactory.createSmbFileOutputStream(smbFile, append);
 		byte[] buf = new byte[512 * 1024];
 		int numRead;
 		while ( (numRead = inputStream.read(buf)) >= 0)

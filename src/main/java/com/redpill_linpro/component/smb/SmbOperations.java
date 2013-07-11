@@ -14,18 +14,22 @@ import org.apache.camel.Exchange;
 import org.apache.camel.component.file.FileComponent;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileEndpoint;
+import org.apache.camel.component.file.GenericFileExist;
 import org.apache.camel.component.file.GenericFileOperationFailedException;
 import org.apache.camel.component.file.GenericFileOperations;
 import org.apache.camel.util.ExchangeHelper;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.IOHelper;
 import org.apache.camel.util.ObjectHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SmbOperations<SmbFile> implements GenericFileOperations<SmbFile> {
 
 	private GenericFileEndpoint<SmbFile> endpoint;
 	private SmbClient client;
-
+	
+	private Logger log = LoggerFactory.getLogger( SmbOperations.class );
 
 	public SmbOperations(SmbClient smbClient) {
 		this.client = smbClient;
@@ -183,6 +187,32 @@ public class SmbOperations<SmbFile> implements GenericFileOperations<SmbFile> {
 	}
 
 	public boolean storeFile(String name, Exchange exchange) throws GenericFileOperationFailedException {
+		boolean append = false;
+		// if an existing file already exists what should we do?
+		if (existsFile(name)) {
+			if (endpoint.getFileExist() == GenericFileExist.Ignore) {
+				// ignore but indicate that the file was written
+				if (log.isDebugEnabled()) {
+					log.debug("An existing file already exists: " + name + ". Ignore and do not override it.");
+				}
+				return false;
+			} else if (endpoint.getFileExist() == GenericFileExist.Fail) {
+				throw new GenericFileOperationFailedException("File already exist: " + name + ". Cannot write new file.");
+			} else if (endpoint.isEagerDeleteTargetFile() && endpoint.getFileExist() == GenericFileExist.Override) {
+				// we override the target so we do this by deleting it so the temp file can be renamed later
+				// with success as the existing target file have been deleted
+				if (log.isDebugEnabled()) {
+					log.debug("Eagerly deleting existing file: " + name);
+				}
+				if (!deleteFile(name)) {
+					throw new GenericFileOperationFailedException("Cannot delete file: " + name);
+				}
+			} else if (endpoint.getFileExist() == GenericFileExist.Append) {
+				append = true;
+			}
+		}
+
+		
 		String storeName = getPath(name);
 
 		InputStream is = null;
@@ -190,7 +220,7 @@ public class SmbOperations<SmbFile> implements GenericFileOperations<SmbFile> {
 			is = ExchangeHelper.getMandatoryInBody(exchange, InputStream.class);
 
 			login();
-			client.storeFile(storeName, is);
+			client.storeFile(storeName, is, append);
 			return true;
 		} catch (Exception e) {
 			throw new GenericFileOperationFailedException("Cannot store file " + storeName, e);
