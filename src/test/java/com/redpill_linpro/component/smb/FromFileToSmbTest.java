@@ -44,7 +44,9 @@ public class FromFileToSmbTest extends BaseSmbTestSupport {
 		mockOutputStream = createMock(SmbFileOutputStream.class);
 		
 		expect(rootDir.exists()).andReturn(true).times(2);
+		expect(logoOne.exists()).andReturn(false).times(1);
 		expect(logoOne.getName()).andReturn("logo1.png");
+		expect(logoTwo.exists()).andReturn(false).times(1);
 		expect(logoTwo.getName()).andReturn("logo2.png");
 		
 		mockOutputStream.write((byte[]) anyObject(), eq(0), eq(15358));
