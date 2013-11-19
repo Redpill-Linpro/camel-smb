@@ -20,4 +20,5 @@ Contributor
 -----------
 Martin Samuelsson [martin __AT__ martsam __DOT__ se]  
 Pontus Ullgren [ullgren gmail com]
+Shaun Elliott 
 

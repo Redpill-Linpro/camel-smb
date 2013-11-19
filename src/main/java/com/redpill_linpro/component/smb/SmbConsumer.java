@@ -61,12 +61,8 @@ public class SmbConsumer extends GenericFileConsumer<SmbFile>{
 				try {
 					GenericFile<SmbFile> genericFile = asGenericFile(fileName, smbFile);
 					if (isValidFile(genericFile, false, smbFiles)) {
-						if (isInProgress(genericFile)) {
-							log.info("skipping as we are already in progress with this file");
-						}
-						else {
-							fileList.add(asGenericFile(fileName, smbFile));
-						}
+						// matched file so add
+						fileList.add(asGenericFile(fileName, smbFile));
 					}
 				} catch (IOException e) {
 					log.warn("Caught IOException: " + e.getMessage());
