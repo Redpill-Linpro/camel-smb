@@ -1,3 +1,6 @@
+*NOTE* This project has been donated to [camel-extras](http://code.google.com/a/apache-extras.org/p/camel-extra/) where it is called camel-jcifs
+This code is only still here to maintain support for users that use the redpill_linpro package names.
+ 
 Camel SMB Component
 ===================
 This project is a Samba Camel component build on top of JCIFS (http://jcifs.samba.org/).
@@ -19,6 +22,5 @@ Travis CI : [![Build Status](https://secure.travis-ci.org/Redpill-Linpro/camel-s
 Contributor
 -----------
 Martin Samuelsson [martin __AT__ martsam __DOT__ se]  
-Pontus Ullgren [ullgren gmail com]
+Pontus Ullgren [ullgren gmail com]   
 Shaun Elliott 
-
